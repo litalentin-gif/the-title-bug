@@ -67,17 +67,45 @@ describe('career debugger',()=>{
   ['System Validation Engineer',['Systems','QA']],
   ['Production Firefighter (On Call Forever)',['Infrastructure','Marketing']],
   ['Release Manager',['Infrastructure','Project Management']],
+  ['API Integration Specialist',['Integration','Development']],
+  ['Systems Architect',['Systems','Development']],
+  ['Systems Analyst',['Systems','Data']],
+  ['Infrastructure Engineer',['Infrastructure','DevOps']],
+  ['Site Reliability Engineer',['Infrastructure','QA']],
+  ['Cloud Infrastructure Architect',['Infrastructure','Systems']],
+  ['Webhook Whisperer',['Integration','Data']],
+  ['Chief Connector of Things That Refuse to Connect',['Integration','QA']],
+  ['Ambassador to Third-Party APIs',['Integration','Marketing']],
+  ['Keeper of the Architecture Diagram',['Systems','Project Management']],
+  ['Senior Dependency Untangler',['Systems','Marketing']],
+  ['Senior Dependency Untangler',['Systems','AI']],
+  ['Guardian of the Load Balancer',['Infrastructure','Cybersecurity']],
+  ['Chief Uptime Negotiator',['Infrastructure','Product']],
  ])('reaches %s from %j',(title,skills)=>expect(debuggerResults(skills)).toContain(title));
  it.each<[string,Skill[]]>([
   ['Integration Engineer',['Integration','Marketing']],
   ['Solutions Engineer',['Integration','Data']],
   ['Systems Engineer',['Systems','Marketing']],
   ['System Validation Engineer',['Systems','Data']],
+  ['API Integration Specialist',['Integration','Data']],
+  ['Systems Architect',['Systems','Data']],
+  ['Systems Analyst',['Systems','Development']],
+  ['Infrastructure Engineer',['Infrastructure','QA']],
+  ['Site Reliability Engineer',['Infrastructure','DevOps']],
+  ['Cloud Infrastructure Architect',['Infrastructure','DevOps']],
+  ['Webhook Whisperer',['Integration','QA']],
+  ['Webhook Whisperer',['Data','QA']],
+  ['Chief Connector of Things That Refuse to Connect',['Integration','Data']],
+  ['Ambassador to Third-Party APIs',['Integration','Product']],
+  ['Keeper of the Architecture Diagram',['Systems','Product']],
+  ['Senior Dependency Untangler',['Systems','Data']],
+  ['Guardian of the Load Balancer',['Infrastructure','Product']],
+  ['Chief Uptime Negotiator',['Infrastructure','Cybersecurity']],
  ])('hides %s from %j',(title,skills)=>expect(debuggerResults(skills)).not.toContain(title));
  it.each(['Integration','Systems','Infrastructure'] as const)('recognizes %s as a single specialty',(skill)=>expect(generateTitle([skill])).toBe(`${skill} Specialist — Surprisingly Focused`));
  it('keeps every title unique when all thirteen skills are selected',()=>{
-  const cycle=Array.from({length:24},(_,attempt)=>generateTitle(SKILLS,attempt));
-  expect(generateTitle(SKILLS,24)).toBe(cycle[0]);
+  const cycle=Array.from({length:37},(_,attempt)=>generateTitle(SKILLS,attempt));
+  expect(generateTitle(SKILLS,37)).toBe(cycle[0]);
   expect(new Set(cycle).size).toBe(cycle.length);
  });
  it('needs at least four skills for unexpected responsibilities',()=>{
