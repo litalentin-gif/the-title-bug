@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {generateTitle,pickModeTitle,TITLES,REAL_TITLES,EASTER_EGG,EASTER_EGG_INTERVAL,type Skill} from './logic';
+import {SKILLS,generateTitle,pickModeTitle,TITLES,REAL_TITLES,EASTER_EGG,EASTER_EGG_INTERVAL,type Skill} from './logic';
 
 const ORIGINAL_REAL=['Technical Product Manager','Senior QA Engineer','Technical Product Owner','System Validation Engineer','Product Support Engineer','Technical Project Manager','QA Lead','Solutions Engineer'];
 const ORIGINAL_FUNNY=['Technical Product Builder','QA Engineer with Product Superpowers','Chief Why-Is-This-Broken Officer','Full-Stack Problem Solver','Cross-Functional Human API','Professional Edge-Case Collector','Chief It-Works-On-My-Machine Officer'];
@@ -51,6 +51,34 @@ describe('career debugger',()=>{
   const cycle=Array.from({length:40},(_,attempt)=>generateTitle(skills,attempt));
   const size=new Set(cycle).size;
   expect(new Set(cycle.slice(0,size)).size).toBe(size);
+ });
+ it('offers the integration, systems and infrastructure skills after the originals',()=>expect(SKILLS.slice(-3)).toEqual(['Integration','Systems','Infrastructure']));
+ it.each<[string,Skill[]]>([
+  ['Integration Engineer',['Integration','Development']],
+  ['Integration Engineer',['Integration','DevOps']],
+  ['Integration Engineer',['Integration','Systems']],
+  ['Integration Engineer',['Integration','Infrastructure']],
+  ['Solutions Engineer',['Integration','Product']],
+  ['Systems Engineer',['Systems','DevOps']],
+  ['Systems Engineer',['Systems','Development']],
+  ['Systems Engineer',['Systems','Infrastructure']],
+  ['Systems Engineer',['Systems','Cybersecurity']],
+  ['Systems Engineer',['Infrastructure','Cybersecurity']],
+  ['System Validation Engineer',['Systems','QA']],
+  ['Production Firefighter (On Call Forever)',['Infrastructure','Marketing']],
+  ['Release Manager',['Infrastructure','Project Management']],
+ ])('reaches %s from %j',(title,skills)=>expect(debuggerResults(skills)).toContain(title));
+ it.each<[string,Skill[]]>([
+  ['Integration Engineer',['Integration','Marketing']],
+  ['Solutions Engineer',['Integration','Data']],
+  ['Systems Engineer',['Systems','Marketing']],
+  ['System Validation Engineer',['Systems','Data']],
+ ])('hides %s from %j',(title,skills)=>expect(debuggerResults(skills)).not.toContain(title));
+ it.each(['Integration','Systems','Infrastructure'] as const)('recognizes %s as a single specialty',(skill)=>expect(generateTitle([skill])).toBe(`${skill} Specialist — Surprisingly Focused`));
+ it('keeps every title unique when all thirteen skills are selected',()=>{
+  const cycle=Array.from({length:24},(_,attempt)=>generateTitle(SKILLS,attempt));
+  expect(generateTitle(SKILLS,24)).toBe(cycle[0]);
+  expect(new Set(cycle).size).toBe(cycle.length);
  });
  it('needs at least four skills for unexpected responsibilities',()=>{
   expect(debuggerResults(['QA','Data','AI'])).not.toContain('Head of Unexpected Responsibilities');

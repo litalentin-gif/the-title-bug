@@ -1,4 +1,4 @@
-export const SKILLS = ['QA','Product','Development','DevOps','UX/UI','Data','AI','Project Management','Cybersecurity','Marketing'] as const;
+export const SKILLS = ['QA','Product','Development','DevOps','UX/UI','Data','AI','Project Management','Cybersecurity','Marketing','Integration','Systems','Infrastructure'] as const;
 export type Skill = typeof SKILLS[number];
 export const REAL_TITLES = [
  'Technical Product Manager',
@@ -51,14 +51,16 @@ export function generateTitle(skills: readonly Skill[], attempt = 0): string {
     ...(skills.includes('QA') && skills.includes('Development') ? ['Professional Bug Creator & Destroyer'] : []),
     ...(skills.includes('Product') && skills.includes('Development') ? ['Chief Idea-to-Reality Officer'] : []),
     ...(skills.includes('AI') && (skills.includes('Data') || skills.includes('Development')) ? ['Algorithm Whisperer'] : []),
-    ...(skills.includes('DevOps') ? ['Production Firefighter (On Call Forever)'] : []),
+    ...(skills.includes('DevOps') || skills.includes('Infrastructure') ? ['Production Firefighter (On Call Forever)'] : []),
     ...(skills.includes('QA') && (skills.includes('Product') || skills.includes('UX/UI')) ? ['Chief But-What-About-The-User Officer'] : []),
     ...(skills.includes('Project Management') && skills.includes('Development') ? ['Technical Program Manager'] : []),
     ...(skills.includes('Product') && skills.includes('Project Management') ? ['Product Operations Manager'] : []),
     ...(skills.includes('Development') && skills.includes('Marketing') ? ['Technical Solutions Consultant'] : []),
-    ...(skills.includes('Development') && skills.includes('DevOps') ? ['Integration Engineer'] : []),
-    ...(skills.includes('DevOps') && skills.includes('Cybersecurity') ? ['Systems Engineer'] : []),
-    ...(skills.includes('DevOps') && skills.includes('Project Management') ? ['Release Manager'] : []),
+    ...((skills.includes('Development') && skills.includes('DevOps')) || (skills.includes('Integration') && (skills.includes('Development') || skills.includes('DevOps') || skills.includes('Systems') || skills.includes('Infrastructure'))) ? ['Integration Engineer'] : []),
+    ...((skills.includes('Cybersecurity') && (skills.includes('DevOps') || skills.includes('Systems') || skills.includes('Infrastructure'))) || (skills.includes('Systems') && (skills.includes('DevOps') || skills.includes('Development') || skills.includes('Infrastructure'))) ? ['Systems Engineer'] : []),
+    ...(skills.includes('QA') && skills.includes('Systems') ? ['System Validation Engineer'] : []),
+    ...(skills.includes('Product') && skills.includes('Integration') ? ['Solutions Engineer'] : []),
+    ...(skills.includes('Project Management') && (skills.includes('DevOps') || skills.includes('Infrastructure')) ? ['Release Manager'] : []),
     ...(skills.includes('Development') && skills.includes('UX/UI') ? ['Developer Experience Engineer'] : []),
     ...(skills.includes('QA') && skills.includes('DevOps') ? ['Quality Engineering Lead', 'Chief Chaos Debugger'] : []),
     ...(skills.includes('QA') && skills.includes('UX/UI') ? ['Professional Edge-Case Collector'] : []),
