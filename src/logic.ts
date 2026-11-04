@@ -37,14 +37,39 @@ export const EASTER_EGG = {
 };
 export const EASTER_EGG_INTERVAL = 10;
 export type TitleMode = 'real' | 'funny';
-export function pickModeTitle(mode: TitleMode, attempt: number): {title: string; description?: string} {
-  if (mode === 'real') return {title: REAL_TITLES[attempt % REAL_TITLES.length]};
+export type TitleOrder = {real: readonly string[]; funny: readonly string[]};
+export function shuffle<T>(items: readonly T[], random = Math.random): T[] {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+// Small seeded generator, so the same seed always gives the same shuffle.
+export function seededRandom(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+// Shuffle once per page load, so the order is random but stays stable across re-renders.
+export function shuffleTitleOrder(random = Math.random): TitleOrder {
+  return {real: shuffle(REAL_TITLES, random), funny: shuffle(TITLES, random)};
+}
+export function pickModeTitle(mode: TitleMode, attempt: number, order: TitleOrder = {real: REAL_TITLES, funny: TITLES}): {title: string; description?: string} {
+  if (mode === 'real') return {title: order.real[attempt % order.real.length]};
   if ((attempt + 1) % EASTER_EGG_INTERVAL === 0) return EASTER_EGG;
   // Discount earlier Easter Eggs so the cycle continues without skipping a title.
   const eggsShown = Math.floor((attempt + 1) / EASTER_EGG_INTERVAL);
-  return {title: TITLES[(attempt - eggsShown) % TITLES.length]};
+  return {title: order.funny[(attempt - eggsShown) % order.funny.length]};
 }
-export function generateTitle(skills: readonly Skill[], attempt = 0): string {
+// The pool depends on the selected skills, so it is shuffled with a per-page-load seed instead of a fixed order.
+export function generateTitle(skills: readonly Skill[], attempt = 0, seed?: number): string {
   if (skills.length === 0) return '404: Skills Not Selected (Coffee Required)';
   if (skills.length === 1) return `${skills[0]} Specialist — Surprisingly Focused`;
   const pool = [
@@ -85,5 +110,6 @@ export function generateTitle(skills: readonly Skill[], attempt = 0): string {
     'Human Integration Layer',
     'Multi-Tab Brain Operator',
   ];
-  return pool[((attempt % pool.length) + pool.length) % pool.length];
+  const order = seed === undefined ? pool : shuffle(pool, seededRandom(seed));
+  return order[((attempt % order.length) + order.length) % order.length];
 }

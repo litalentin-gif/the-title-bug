@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {SKILLS,generateTitle,pickModeTitle,TITLES,REAL_TITLES,EASTER_EGG,EASTER_EGG_INTERVAL,type Skill} from './logic';
+import {SKILLS,generateTitle,pickModeTitle,shuffleTitleOrder,TITLES,REAL_TITLES,EASTER_EGG,EASTER_EGG_INTERVAL,type Skill} from './logic';
 
 const ORIGINAL_REAL=['Technical Product Manager','Senior QA Engineer','Technical Product Owner','System Validation Engineer','Product Support Engineer','Technical Project Manager','QA Lead','Solutions Engineer'];
 const ORIGINAL_FUNNY=['Technical Product Builder','QA Engineer with Product Superpowers','Chief Why-Is-This-Broken Officer','Full-Stack Problem Solver','Cross-Functional Human API','Professional Edge-Case Collector','Chief It-Works-On-My-Machine Officer'];
@@ -175,5 +175,44 @@ describe('easter egg',()=>{
  it('does not skip the next funny title',()=>{
   const index=EASTER_EGG_INTERVAL-1;
   expect(TITLES.indexOf(pickModeTitle('funny',index+1).title)).toBe((TITLES.indexOf(pickModeTitle('funny',index-1).title)+1)%TITLES.length);
+ });
+});
+
+describe('random title order',()=>{
+ const seeded=(seed:number)=>()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+ it('shuffles without losing or duplicating titles',()=>{
+  const order=shuffleTitleOrder(seeded(42));
+  expect([...order.real].sort()).toEqual([...REAL_TITLES].sort());
+  expect([...order.funny].sort()).toEqual([...TITLES].sort());
+ });
+ it('changes the order between page loads',()=>{
+  const orders=new Set(Array.from({length:10},(_,i)=>shuffleTitleOrder(seeded(i+1)).real.join('|')));
+  expect(orders.size).toBeGreaterThan(1);
+ });
+ it('follows the shuffled order and shows every title before repeating',()=>{
+  const order=shuffleTitleOrder(seeded(7));
+  const real=Array.from({length:REAL_TITLES.length},(_,attempt)=>pickModeTitle('real',attempt,order).title);
+  expect(real).toEqual(order.real);
+  const funny=Array.from({length:TITLES.length+1},(_,attempt)=>pickModeTitle('funny',attempt,order).title).filter(title=>title!==EASTER_EGG.title);
+  expect(funny).toEqual(order.funny);
+ });
+ it('shuffles the career debugger pool by seed without losing titles',()=>{
+  const skills:Skill[]=['QA','Product','Development','DevOps'];
+  const plain=Array.from({length:40},(_,attempt)=>generateTitle(skills,attempt));
+  const size=new Set(plain).size;
+  const shuffled=Array.from({length:size},(_,attempt)=>generateTitle(skills,attempt,123));
+  expect(new Set(shuffled).size).toBe(size);
+  expect([...shuffled].sort()).toEqual([...new Set(plain)].sort());
+  expect(Array.from({length:size},(_,attempt)=>generateTitle(skills,attempt,123))).toEqual(shuffled);
+  const orders=new Set(Array.from({length:10},(_,seed)=>Array.from({length:size},(_,attempt)=>generateTitle(skills,attempt,seed)).join('|')));
+  expect(orders.size).toBeGreaterThan(1);
+ });
+ it('keeps the fixed messages for zero or one skill when seeded',()=>{
+  expect(generateTitle([],0,5)).toBe(generateTitle([]));
+  expect(generateTitle(['QA'],3,5)).toBe(generateTitle(['QA']));
+ });
+ it('keeps the easter egg on every tenth funny result',()=>{
+  const order=shuffleTitleOrder(seeded(3));
+  expect(pickModeTitle('funny',EASTER_EGG_INTERVAL-1,order)).toEqual(EASTER_EGG);
  });
 });

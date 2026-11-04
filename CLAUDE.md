@@ -29,7 +29,7 @@ The whole UI is the `App` component in `src/main.tsx`, a single page with no rou
 - **"Generate my job title" (section 02)** has the Real-world and Funny modes. It calls `pickModeTitle(mode, attempt)`, which cycles through `REAL_TITLES` or `TITLES`. It ignores skills.
 - **"Debug your own career" (section 03)** calls `generateTitle(skills, attempt)`, which builds a pool from conditional skill matches plus three generic titles, then cycles through it. It has no modes, so its results mix real-world and funny titles. Zero or one selected skills return early with fixed messages.
 
-Selection is deterministic: `attempt` indexes the list, and nothing uses `Math.random`. This matters because `pickModeTitle` runs during render, and the diagnostics timer causes re-renders, so a random pick would make the title change on its own.
+Selection is deterministic per render: `attempt` indexes the list. This matters because `pickModeTitle` runs during render, and the diagnostics timer causes re-renders, so a random pick would make the title change on its own. Section 02 still feels random because `App` shuffles both lists once per page load (`shuffleTitleOrder` in a `useState` initializer) and passes that order to `pickModeTitle`. Section 03's pool depends on the selected skills, so `App` instead picks a random seed once per page load and `generateTitle(skills, attempt, seed)` shuffles the pool with `seededRandom(seed)`. Without an order or seed argument, both functions use the lists as written, which the tests rely on.
 
 The Easter Egg (`EASTER_EGG`) replaces every `EASTER_EGG_INTERVAL`th attempt in Funny mode only. `pickModeTitle` offsets the index so the regular cycle doesn't skip a title, and the egg's description replaces the mode caption.
 

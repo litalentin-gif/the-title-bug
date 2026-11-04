@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Bug, Github, RotateCcw, Terminal, ExternalLink, Copy, Check, Sparkles, ArrowDown, Code2} from 'lucide-react';
-import {SKILLS, generateTitle, pickModeTitle, type Skill, type TitleMode} from './logic';
+import {SKILLS, generateTitle, pickModeTitle, shuffleTitleOrder, type Skill, type TitleMode} from './logic';
 import {applyConsent, getConsent, saveConsent, type Consent} from './analytics';
 import './style.css';
 
@@ -41,13 +41,15 @@ function App(){
  };
 
  const [attempt,setAttempt]=useState(0);
- const modeTitle=pickModeTitle(titleMode,attempt);
+ const [titleOrder]=useState(shuffleTitleOrder);
+ const [debuggerSeed]=useState(()=>Math.floor(Math.random()*2**32));
+ const modeTitle=pickModeTitle(titleMode,attempt,titleOrder);
  const [selected,setSelected]=useState<Skill[]>(['QA','Product','Development']);
  const [visitorAttempt,setVisitorAttempt]=useState(0);
  const [visitorTitle,setVisitorTitle]=useState<string|null>(null);
  const [copied,setCopied]=useState(false);
  const toggle=(s:Skill)=>{setSelected(old=>old.includes(s)?old.filter(x=>x!==s):[...old,s]);setVisitorTitle(null);setVisitorAttempt(0)};
- const run=()=>{setVisitorTitle(generateTitle(selected,visitorAttempt));setVisitorAttempt(n=>n+1)};
+ const run=()=>{setVisitorTitle(generateTitle(selected,visitorAttempt,debuggerSeed));setVisitorAttempt(n=>n+1)};
  const copy=async()=>{if(!visitorTitle)return;try{await navigator.clipboard.writeText(`My title debugger result: ${visitorTitle} 🐞 #TheTitleBug`);setCopied(true);setTimeout(()=>setCopied(false),1800)}catch{setCopied(false)}};
  return <main>
   <header className="nav wrap"><a className="brand" href="#top"><Bug size={22}/> the-title-bug<span className="version">v1.1.0</span></a><a className="github" href="https://github.com/litalentin-gif/the-title-bug" target="_blank" rel="noreferrer"><Github size={18}/> View source</a></header>
